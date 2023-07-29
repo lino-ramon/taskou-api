@@ -1,6 +1,5 @@
 import pymongo
 import os
-from bson import json_util
 
 class GenericMongoDB(object):
     db_host: str

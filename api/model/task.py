@@ -1,3 +1,4 @@
+import logging
 from .generic_mongodb import GenericMongoDB
 
 class Task(object):
@@ -18,18 +19,19 @@ class Task(object):
         self.description = task_data.get('description', '')
         self.annotations = task_data.get('annotations', [])
 
-    def save(self) -> bool:
+    def save(self, user_id) -> bool:
         try:
             task_collection = GenericMongoDB().get_collection('tasks')
             task_json = self.get_json()
+            logging.info("[%s] Saving a task - Fields: [%s]", self.user_id, task_json)
             task_collection.insert_one(task_json)
         except Exception as erro:
-            print("Erro ao inserir no mongo. Erro: [%s]", erro)
+            logging.exception("[%s] Error to insert at mongo. Erro: [%s]", self.user_id, erro)
             return False
 
         return True
     def get_json(self) -> dict:
-        task_json = {
+        return {
                 'id': self.id,
                 'name': self.name,
                 'status': self.status,
@@ -38,4 +40,3 @@ class Task(object):
                 'description': self.description,
                 'annotations': self.annotations
             }
-        return task_json

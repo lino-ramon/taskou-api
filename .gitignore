@@ -1,3 +1,4 @@
 /development_venv
 __pycache__
 /api/mongodb
+/logs/*.log

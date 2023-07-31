@@ -1,14 +1,20 @@
 import json
+import logging
+import os
+import uuid
 
 from bson import json_util
 from flask import jsonify, request
 from flask_restx import Resource
 
-from ..model.errors import TaskNotFoundError, KeyError
-from ..model.generic_mongodb import GenericMongoDB
-from ..model.ns_models import task_model
-from ..model.task import Task
-from ..server.instance import server
+from api.model.errors import TaskNotFoundError, KeyError, SaveUserError
+from api.model.generic_mongodb import GenericMongoDB
+from api.model.ns_models import task_model
+from api.model.task import Task
+from api.model.user import User
+from api.server.instance import server
+
+from api.service.create_user_service import CreateUserService
 
 HTTP_SUCCESS_CODE = 200
 HTTP_CODE_ERROR = 404
@@ -17,6 +23,7 @@ app = server.app
 api = server.api
 taskou_ns = server.taskou_ns
 
+app.config['SECRET_KEY'] = os.getenv('APP_SECRET_KEY', 't4sk0uKey')
 
 @api.route('/tasks')
 class Tasks(Resource):
@@ -61,8 +68,13 @@ class Tasks(Resource):
         collection = GenericMongoDB().get_collection('tasks')
         task_data = request.get_json()
         task = Task(task_data)
-        task = task.get_json()
-        collection.insert_one(task)
+        task.save()
         response = {'message': 'Task insert successfull!!!'}
         return jsonify(response)
 
+@api.route('/users')
+class Users(Resource):
+    def get(self):
+        create_user_service = CreateUserService()
+        response = create_user_service.get_response()
+        return jsonify(response)

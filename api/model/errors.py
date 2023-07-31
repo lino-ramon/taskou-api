@@ -20,10 +20,3 @@ class SaveUserError(Exception):
 
     def __str__(self):
         return self.mensagem
-
-class TechnicalError(Exception):
-    def __init__(self, message):
-        self.mensagem = message
-
-    def __str__(self):
-        return self.mensagem

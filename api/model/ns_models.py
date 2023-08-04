@@ -4,10 +4,14 @@ from ..server.instance import server
 taskou_ns = server.taskou_ns
 
 task_model = taskou_ns.model('Task', {
-                'name': fields.String(required=True),
-                'status': fields.String(),
-                'start_data': fields.String(),
-                'end_data': fields.String(),
-                'description': fields.String(),
-                'annotations': fields.List(fields.String())
-            })
+    'name': fields.String(required=True),
+    'status': fields.String(),
+    'start_data': fields.String(),
+    'end_data': fields.String(),
+    'description': fields.String(),
+    'annotations': fields.List(fields.String())
+})
+
+user_model = taskou_ns.model('User', {
+    'user_id': fields.String(required=True)
+})

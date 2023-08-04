@@ -80,9 +80,33 @@ class Tasks(Resource):
 @api.route('/users')
 class Users(Resource):
     def get(self):
-        request_exec_id = request.request_id
+        request_id = request.request_id
         user_service = UserService()
-        response = user_service.create_user(request_exec_id)
+        response = user_service.generate_user(request_id)
+        return jsonify(response)
+
+    def delete(self):
+        request_id = request.request_id
+        try:
+            payload = request.get_json()
+            
+            if 'user_id' not in payload:
+                raise KeyError("Field 'user_id' is required!")
+
+            user_id = payload['user_id']
+
+            if not user_id:
+                raise ValueError("ID cannot be empty!")
+            
+            user_service = UserService()
+            response = user_service.delete_user(request_id, user_id)
+
+        except (ValueError, KeyError) as e:
+            response = {
+                "error": str(e),
+                "message": "Invalid Payload."
+            }
+        
         return jsonify(response)
 
 @app.after_request

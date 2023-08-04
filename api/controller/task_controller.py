@@ -5,7 +5,7 @@ import uuid
 import time
 
 from bson import json_util
-from flask import jsonify, request
+from flask import jsonify, request, g as gvar
 from flask_restx import Resource
 from datetime import datetime
 
@@ -13,12 +13,10 @@ from api.model.errors import TaskNotFoundError, KeyError, SaveUserError
 from api.model.generic_mongodb import GenericMongoDB
 from api.model.ns_models import task_model
 from api.model.task import Task
+from api.model.request_history import RequestHistory
 from api.server.instance import server
 
-from api.service.create_user_service import CreateUserService
-
-HTTP_SUCCESS_CODE = 200
-HTTP_CODE_ERROR = 404
+from api.service.user_service import UserService
 
 app = server.app
 api = server.api
@@ -30,6 +28,7 @@ app.config['SECRET_KEY'] = os.getenv('APP_SECRET_KEY', 't4sk0uKey')
 def request_init():
     request.request_id = str(uuid.uuid4())
     request.start_time = time.time()
+    gvar.start_data = datetime.now()
 
 @api.route('/tasks')
 class Tasks(Resource):
@@ -82,23 +81,13 @@ class Tasks(Resource):
 class Users(Resource):
     def get(self):
         request_exec_id = request.request_id
-        create_user_service = CreateUserService()
-        response = create_user_service.create_user(request_exec_id)
+        user_service = UserService()
+        response = user_service.create_user(request_exec_id)
         return jsonify(response)
 
 @app.after_request
 def request_end(response):
-    request_exec_info = {
-        'request_id': request.request_id,
-        'endpoint': request.endpoint,
-        'http_method': request.method,
-        'start_data': request.headers.get('Date'),
-        'end_data': datetime.now(),
-        'runtime': time.time() - request.start_time
-    }
-    logging.info('[%s] Saving Request Exec Info: [%s]', request.request_id, request_exec_info)
-    collection = GenericMongoDB().get_collection('request_exec_history')
-    collection.insert_one(request_exec_info)
-
+    request_history = RequestHistory()
+    request_history.save()
     return response
     

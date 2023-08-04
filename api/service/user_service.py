@@ -4,8 +4,9 @@ import uuid
 from api.model.user import User
 from api.model.errors import SaveUserError
 from api.model.generic_mongodb import GenericMongoDB
+from flask import g as gvar
 
-class CreateUserService(object):
+class UserService(object):
     def __init__(self) -> None:
         pass
 
@@ -30,6 +31,7 @@ class CreateUserService(object):
                     'user_id': user_id,
                     'message': 'User Created Successfull!'
                 }
+            gvar.user_id = user_id
         except SaveUserError as e:
             logging.exception("[%s] Erro to create user: [%s]", request_exec_id, e)
             response = {

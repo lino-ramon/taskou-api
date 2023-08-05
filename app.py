@@ -13,7 +13,7 @@ if __name__ == '__main__':
         format='%(asctime)s - %(levelname)-6s - %(message)s',
         encoding='utf-8',
         handlers=[
-            logging.FileHandler("logs/taskou_api.log", mode="w"),
+            logging.FileHandler("logs/taskou_api.log", mode="a"),
             logging.StreamHandler()
         ]
     )
